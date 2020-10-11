@@ -7,6 +7,7 @@ import { UserModule } from './user/user.module';
 
 import jwtConfig from 'src/config/jwt-config';
 import { PassportModule } from '@nestjs/passport';
+import { AccountModule } from './account/account.module';
 
 @Module({
   imports: [
@@ -20,14 +21,20 @@ import { PassportModule } from '@nestjs/passport';
     PassportModule.register({ defaultStrategy: 'jwt' }),
     TypeOrmModule.forRootAsync({
       useFactory: () => ({
+        name: 'default',
+        dropSchema: false,
+        autoSchemaSync: true,
         type: 'sqlite',
         database: './db/db.sqlite',
-        entities: [],
         synchronize: true,
         autoLoadEntities: true,
+        migrationsRun: false,
+        logging: true,
+        keepConnectionAlive: true,
       }),
     }),
     UserModule,
+    AccountModule,
   ],
   controllers: [AppController],
   providers: [AppService],

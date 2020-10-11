@@ -5,6 +5,8 @@
 # Database
 /db
 
+/.history
+
 # Logs
 logs
 *.log

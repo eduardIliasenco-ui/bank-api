@@ -3,10 +3,7 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ConfigService } from '@nestjs/config';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UserService } from './user.service';
-import { UserDTO } from './dto/user.dto';
-import { IUser } from './types';
-
-import { Request } from 'express';
+import { User } from './entities/user.entity';
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
@@ -23,22 +20,25 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  // async validate({ iat, exp }: JwtPayload) {
-  //   const isExpired = exp - iat <= 0;
-  //   if (isExpired) {
-  //     throw new UnauthorizedException();
-  //   }
-  //   return {};
-  // }
-  async validate(req: Request, payload: UserDTO): Promise<IUser> {
-    const user = await this.userService.validateUser(payload);
+  async validate({ iat, exp, email }: { iat: number; exp: number, email: string }): Promise<User> {
+    const isExpired = exp - iat <= 0;
+    const user = await this.userService.validateUserByEmail(email);
 
-    if (!user) {
+    if (!user || isExpired) {
       throw new UnauthorizedException();
     }
 
     return user;
   }
+  // async validate(req: Request, payload: UserDTO): Promise<IUser> {
+  //   const user = await this.userService.validateUser(payload);
+
+  //   if (!user) {
+  //     throw new UnauthorizedException();
+  //   }
+
+  //   return user;
+  // }
 
   // version from https://github.com/abouroubi/nestjs-auth-jwt/blob/master/src/auth/strategies/jwt-strategy.ts
   // async validate(req, payload: JwtPayload) {

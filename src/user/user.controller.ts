@@ -1,5 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger';
+import { Body, Controller, Post, HttpCode } from '@nestjs/common';
+import { ApiTags, ApiUnauthorizedResponse, ApiDefaultResponse, ApiOkResponse } from '@nestjs/swagger';
 import { UserDTO } from './dto/user.dto';
 import { IUser } from './types';
 import { UserService } from './user.service';
@@ -15,9 +15,15 @@ export class UserController {
     }
 
     @Post('login')
+    @HttpCode(200)
+    @ApiOkResponse()
+    @ApiUnauthorizedResponse({ description: 'Unauthorized' })
     async login(@Body() userCredentials: UserDTO): Promise<any> {
         const user = await this.userService.validateUser(userCredentials);
 
-        return await this.userService.generateToken(user);
+        return {
+            user,
+            token: await this.userService.generateToken(user),
+        };
     }
 }
