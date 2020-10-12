@@ -37,7 +37,7 @@ export class Account extends BaseEntity {
   phoneNumber: string;
 
   @ApiProperty({ type: () => User })
-  @OneToOne(() => User, user => user.account, { nullable: true, eager: true })
+  @OneToOne(() => User, user => user.account, { nullable: true })
   @JoinColumn({ name: 'user' })
   user: User;
 }
